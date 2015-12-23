@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package jmp;
 
 import java.awt.event.ActionEvent;
@@ -56,11 +51,26 @@ public class ExecControls extends JPanel {
         runBtn.setIcon(new ImageIcon("C:\\Users\\admin\\Downloads\\cc_mono_icon_set\\cc\\black\\png\\playback_play_icon&16.png"));
         runBtn.setToolTipText("Run code");
         runBtn.setPreferredSize(new java.awt.Dimension(30, 25));
+        runBtn.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                proc.startExecution();
+                stopBtn.setEnabled(true);
+            }
+        });
         add(runBtn);
 
         stopBtn.setIcon(new ImageIcon("C:\\Users\\admin\\Downloads\\cc_mono_icon_set\\cc\\black\\png\\playback_stop_icon&16.png"));
         stopBtn.setToolTipText("Stop execution");
+        stopBtn.setEnabled(false);
         stopBtn.setPreferredSize(new java.awt.Dimension(30, 25));
+        stopBtn.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                proc.pauseExecution();
+                stopBtn.setEnabled(false);
+            }
+        });
         add(stopBtn);
 
         stepBtn.setIcon(new ImageIcon("C:\\Users\\admin\\Downloads\\cc_mono_icon_set\\cc\\black\\png\\redo_icon&16.png"));
@@ -80,7 +90,6 @@ public class ExecControls extends JPanel {
         resetBtn.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                proc.pauseExecution();
                 proc.resetState();
             }
         });

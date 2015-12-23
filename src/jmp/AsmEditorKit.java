@@ -7,6 +7,7 @@ package jmp;
 
 import java.awt.Color;
 import java.awt.Font;
+import java.util.Arrays;
 import java.util.HashSet;
 import javax.swing.text.*;
 
@@ -23,13 +24,12 @@ public class AsmEditorKit extends StyledEditorKit {
     @Override
     public Document createDefaultDocument() {
         HashSet keywords = new HashSet();
-        keywords.add("mov");
-        keywords.add("cmp");
-        keywords.add("jmp");
-        keywords.add("jnz");
-        keywords.add("hlt");
-        keywords.add("ret");
-        keywords.add("call");
+        
+        for (int i = 0; i < Opcode.values().length; i++) {
+            keywords.add(Opcode.values()[i].toString());            
+        }
+        
+        keywords.addAll(Arrays.asList(new String[] {"jmp", "add", "mov", "cmp", "hlt"}));
 
         AsmHighlighter doc = new AsmHighlighter(keywords);
 

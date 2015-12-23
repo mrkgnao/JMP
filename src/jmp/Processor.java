@@ -1,5 +1,10 @@
 package jmp;
 
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
+
 /**
  *
  * @author admin
@@ -8,6 +13,9 @@ public class Processor {
 
     private final MainMemory mem;
     private boolean isExecuting;
+    private int clockSpeedMilliHz = 1000;
+    ScheduledExecutorService periodicRunner = Executors.newScheduledThreadPool(1);
+    ScheduledFuture<Object> task;
 
     public Processor() {
         this.mem = new MainMemory();
@@ -440,8 +448,19 @@ public class Processor {
         mem.setIP(addr);
     }
 
+    public void startExecution() {
+        isExecuting = true;
+        task = (ScheduledFuture<Object>) periodicRunner.scheduleAtFixedRate(new Runnable() {
+            @Override
+            public void run() {
+                step();
+            }
+        }, 0, 1000000000000L / clockSpeedMilliHz, TimeUnit.NANOSECONDS);
+    }
+    
     void pauseExecution() {
         isExecuting = false;
+        task.cancel(true);
     }
 
     void resetState() {
