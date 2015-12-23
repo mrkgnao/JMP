@@ -29,11 +29,10 @@ public class Processor {
      * Execution. 
      */
     void step() {
-        int ipPos = mem.getIP();
         int ipVal = mem.getIPValue();
         Opcode op = OpcodeData.opcodeOf(ipVal);
-        Register dest, src, first, second;
-        int arg, addr, val1, val2;
+        Register dest, src;
+        int arg, val1, val2;
         switch (op) {
             case NONE:
                 System.out.println("Encountered " + op.toString() + ".");
@@ -106,7 +105,7 @@ public class Processor {
                 src = Register.toRegister(mem.getIPOffsetValue(2));
                 addRR(dest, src);
                 mem.incIPBy(3);
-                System.out.println("MOV " + dest.toString() + ", " + src.toString());
+                System.out.println("ADD " + dest.toString() + ", " + src.toString());
                 break;
             case ADD_R_O:
                 System.out.println("Encountered " + op.toString() + "; not supported yet");

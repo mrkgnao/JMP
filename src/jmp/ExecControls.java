@@ -19,18 +19,18 @@ public class ExecControls extends JPanel {
 
     private void initComponents() {
 
-        openFileBtn.setIcon(new ImageIcon(getClass().getResource("/jmp/folder_open_icon&16.png")));
+        openFileBtn.setIcon(new ImageIcon(getClass().getResource("/jmp/img/folder_open_icon&16.png")));
         openFileBtn.setToolTipText("Open assembly file");
         openFileBtn.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
         openFileBtn.setPreferredSize(new java.awt.Dimension(30, 25));
         add(openFileBtn);
 
-        saveFileBtn.setIcon(new ImageIcon("C:\\Users\\admin\\Downloads\\cc_mono_icon_set\\cc\\black\\png\\save_icon&16.png"));
+        saveFileBtn.setIcon(new ImageIcon(getClass().getResource("/jmp/img/save_icon&16.png")));
         saveFileBtn.setToolTipText("Save code to file");
         saveFileBtn.setPreferredSize(new java.awt.Dimension(30, 25));
         add(saveFileBtn);
 
-        deleteTextBtn.setIcon(new ImageIcon("C:\\Users\\admin\\Downloads\\cc_mono_icon_set\\cc\\black\\png\\delete_icon&16.png"));
+        deleteTextBtn.setIcon(new ImageIcon(getClass().getResource("/jmp/img/delete_icon&16.png")));
         deleteTextBtn.setToolTipText("Clear code area");
         deleteTextBtn.setPreferredSize(new java.awt.Dimension(30, 25));
         add(deleteTextBtn);
@@ -42,13 +42,13 @@ public class ExecControls extends JPanel {
         sep.setPreferredSize(new java.awt.Dimension(1, 25));
         add(sep);
 
-        assembleBtn.setIcon(new ImageIcon("C:\\Users\\admin\\Downloads\\cc_mono_icon_set\\cc\\black\\png\\cog_icon&16.png"));
+        assembleBtn.setIcon(new ImageIcon(getClass().getResource("/jmp/img/cog_icon&16.png")));
         assembleBtn.setToolTipText("Assemble code");
         assembleBtn.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
         assembleBtn.setPreferredSize(new java.awt.Dimension(30, 25));
         add(assembleBtn);
 
-        runBtn.setIcon(new ImageIcon("C:\\Users\\admin\\Downloads\\cc_mono_icon_set\\cc\\black\\png\\playback_play_icon&16.png"));
+        runBtn.setIcon(new ImageIcon(getClass().getResource("/jmp/img/playback_play_icon&16.png")));
         runBtn.setToolTipText("Run code");
         runBtn.setPreferredSize(new java.awt.Dimension(30, 25));
         runBtn.addActionListener(new ActionListener() {
@@ -60,7 +60,7 @@ public class ExecControls extends JPanel {
         });
         add(runBtn);
 
-        stopBtn.setIcon(new ImageIcon("C:\\Users\\admin\\Downloads\\cc_mono_icon_set\\cc\\black\\png\\playback_stop_icon&16.png"));
+        stopBtn.setIcon(new ImageIcon(getClass().getResource("/jmp/img/playback_stop_icon&16.png")));
         stopBtn.setToolTipText("Stop execution");
         stopBtn.setEnabled(false);
         stopBtn.setPreferredSize(new java.awt.Dimension(30, 25));
@@ -73,7 +73,7 @@ public class ExecControls extends JPanel {
         });
         add(stopBtn);
 
-        stepBtn.setIcon(new ImageIcon("C:\\Users\\admin\\Downloads\\cc_mono_icon_set\\cc\\black\\png\\redo_icon&16.png"));
+        stepBtn.setIcon(new ImageIcon(getClass().getResource("/jmp/img/redo_icon&16.png")));
         stepBtn.setToolTipText("Step forward");
         stepBtn.setPreferredSize(new java.awt.Dimension(30, 25));
         stepBtn.addActionListener(new ActionListener() {
@@ -84,7 +84,7 @@ public class ExecControls extends JPanel {
         });
         add(stepBtn);
 
-        resetBtn.setIcon(new ImageIcon("C:\\Users\\admin\\Downloads\\cc_mono_icon_set\\cc\\black\\png\\refresh_icon&16.png"));
+        resetBtn.setIcon(new ImageIcon(getClass().getResource("/jmp/img/refresh_icon&16.png")));
         resetBtn.setToolTipText("Reset VM state");
         resetBtn.setPreferredSize(new java.awt.Dimension(30, 25));
         resetBtn.addActionListener(new ActionListener() {
