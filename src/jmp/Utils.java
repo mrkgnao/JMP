@@ -5,6 +5,9 @@
  */
 package jmp;
 
+import java.text.NumberFormat;
+import java.text.ParsePosition;
+
 /**
  *
  * @author admin
@@ -28,8 +31,15 @@ public class Utils {
     public static int toAddr(int x) {
         return (x % VMConstants.NUM_ADDRS);
     }
-    
+
     public static boolean isKeyword(String s) {
         return s.indexOf("mov") != -1;
+    }
+
+    public static boolean isNumeric(String str) {
+        NumberFormat formatter = NumberFormat.getInstance();
+        ParsePosition pos = new ParsePosition(0);
+        formatter.parse(str, pos);
+        return str.length() == pos.getIndex();
     }
 }

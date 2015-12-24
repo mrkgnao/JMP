@@ -13,8 +13,9 @@ public class Processor {
 
     private final MainMemory mem;
     private boolean isExecuting;
-    private int clockSpeedMilliHz = 1000;
-    ScheduledExecutorService periodicRunner = Executors.newScheduledThreadPool(1);
+    private int clockSpeedMilliHz = 4000;
+
+    ScheduledExecutorService periodicRunner = Executors.newScheduledThreadPool(5);
     ScheduledFuture<Object> task;
 
     public Processor() {
@@ -456,13 +457,27 @@ public class Processor {
             }
         }, 0, 1000000000000L / clockSpeedMilliHz, TimeUnit.NANOSECONDS);
     }
-    
+
     void pauseExecution() {
         isExecuting = false;
         task.cancel(true);
     }
 
     void resetState() {
-        mainMemory().reset();
+        mainMemory().resetAll();
+    }
+
+    private void setClockSpeed(int milliHz) {
+        this.clockSpeedMilliHz = milliHz;
+    }
+
+    public void changeClockSpeed(int newMilliHz) {
+        if (isExecuting) {
+            pauseExecution();
+            setClockSpeed(newMilliHz);
+            startExecution();
+        } else {
+            setClockSpeed(newMilliHz);
+        }
     }
 }

@@ -33,8 +33,6 @@ public class MainMemory {
         registers = new int[]{0, 0, 0, 0, 0};
 
         ip = 0;
-        // SP
-        registers[VMConstants.NUM_GPR] = VMConstants.NUM_ADDRS - 1;
 
         z = false;
         c = false;
@@ -43,6 +41,38 @@ public class MainMemory {
         // This is the important bit
         this.ram = new RamTable(this);
         this.reg = new RegisterTable(this);
+    }
+
+    void resetAll() {
+        mem = new int[RAM_TABLE_ROW_LEN][RAM_TABLE_ROW_LEN];
+        registers = new int[]{0, 0, 0, 0, 0};
+
+        ip = 0;
+
+        z = false;
+        c = false;
+        f = false;
+
+        ram.update();
+        reg.updateTable();
+    }
+
+    void resetRam() {
+        mem = new int[RAM_TABLE_ROW_LEN][RAM_TABLE_ROW_LEN];
+        ram.update();
+    }
+
+    void resetRegisters() {
+        registers = new int[]{0, 0, 0, 0, 0};
+
+        ip = 0;
+
+        z = false;
+        c = false;
+        f = false;
+
+        reg.updateTable();
+        ram.update();
     }
 
     public void initializeFromArray(int[] arr) {
@@ -85,21 +115,6 @@ public class MainMemory {
     int getRamByte(int addr) {
         addr = Utils.toAddr(addr);
         return mem[addr % RAM_TABLE_ROW_LEN][addr / RAM_TABLE_ROW_LEN];
-    }
-
-    void reset() {
-        mem = new int[RAM_TABLE_ROW_LEN][RAM_TABLE_ROW_LEN];
-        registers = new int[5];
-
-        ip = 0;
-        registers[VMConstants.NUM_GPR] = 0;
-
-        z = false;
-        c = false;
-        f = false;
-
-        ram.update();
-        reg.updateTable();
     }
 
     /* 

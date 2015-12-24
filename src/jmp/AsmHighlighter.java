@@ -388,13 +388,7 @@ class AsmHighlighter extends DefaultStyledDocument {
         doc.setCharacterAttributes(startOffset, endOfQuote - startOffset + 1, quote, false);
         return endOfQuote + 1;
     }
-public static boolean isNumeric(String str)
-{
-  NumberFormat formatter = NumberFormat.getInstance();
-  ParsePosition pos = new ParsePosition(0);
-  formatter.parse(str, pos);
-  return str.length() == pos.getIndex();
-}
+
     private int getOtherToken(String content, int startOffset, int endOffset) {
         int endOfToken = startOffset + 1;
         while (endOfToken <= endOffset) {
@@ -406,7 +400,7 @@ public static boolean isNumeric(String str)
         String token = content.substring(startOffset, endOfToken);
         if (isKeyword(token)) {
             doc.setCharacterAttributes(startOffset, endOfToken - startOffset, keyword, false);
-        } else if (isNumeric(token)) {
+        } else if (Utils.isNumeric(token)) {
             doc.setCharacterAttributes(startOffset, endOfToken - startOffset, number, false);
         }
         return endOfToken + 1;

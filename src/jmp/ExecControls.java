@@ -30,11 +30,6 @@ public class ExecControls extends JPanel {
         saveFileBtn.setPreferredSize(new java.awt.Dimension(30, 25));
         add(saveFileBtn);
 
-        deleteTextBtn.setIcon(new ImageIcon(getClass().getResource("/jmp/img/delete_icon&16.png")));
-        deleteTextBtn.setToolTipText("Clear code area");
-        deleteTextBtn.setPreferredSize(new java.awt.Dimension(30, 25));
-        add(deleteTextBtn);
-
         sep.setBackground(java.awt.Color.gray);
         sep.setForeground(java.awt.Color.gray);
         sep.setMinimumSize(new java.awt.Dimension(5, 50));
@@ -84,22 +79,35 @@ public class ExecControls extends JPanel {
         });
         add(stepBtn);
 
+        
+        
         resetBtn.setIcon(new ImageIcon(getClass().getResource("/jmp/img/refresh_icon&16.png")));
-        resetBtn.setToolTipText("Reset VM state");
+        resetBtn.setToolTipText("Reset execution state");
         resetBtn.setPreferredSize(new java.awt.Dimension(30, 25));
         resetBtn.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                proc.mainMemory().resetRegisters();
+            }
+        });
+        add(resetBtn);
+        
+        clearMemoryBtn.setIcon(new ImageIcon(getClass().getResource("/jmp/img/delete_icon&16.png")));
+        clearMemoryBtn.setToolTipText("Clear memory");
+        clearMemoryBtn.setPreferredSize(new java.awt.Dimension(30, 25));
+        clearMemoryBtn.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 proc.resetState();
             }
         });
-        add(resetBtn);
+        add(clearMemoryBtn);
     }// </editor-fold>                        
 
     // Variables declaration - do not modify                     
     private final JButton openFileBtn = new JButton(),
             saveFileBtn = new JButton(),
-            deleteTextBtn = new JButton(),
+            clearMemoryBtn = new JButton(),
             assembleBtn = new JButton(),
             runBtn = new JButton(),
             stopBtn = new JButton(),

@@ -62,7 +62,7 @@ public class RamTable extends JPanel {
         }
     }
 
-    private void clearAllCells() {
+    private void recolorAllCells() {
         for (int row = 0; row < VMConstants.RAM_TABLE_ROW_LEN; row++) {
             for (int col = 0; col < VMConstants.RAM_TABLE_COL_LEN; col++) {
                 locs[col][row].setBackground(showValues ? VMConstants.DEFAULT_RAM_CELL_COLOR : VMConstants.NO_TEXT_RAM_CELL_COLOR);
@@ -94,7 +94,7 @@ public class RamTable extends JPanel {
                 }
             }
         }
-        clearAllCells();
+        recolorAllCells();
         updateRegisterCellColors();
     }
 
