@@ -1,14 +1,13 @@
 # JMP
-An assembly language VM with a bit more visual feedback than is necessary
+As the highly informative mini-description said, this is an assembly language VM with too many bells and whistles, all of them purely visual and intended to cover up the fact that I don't really know assembly.
 
-# What is this?
-Well, you read the subtitle. 
+# Tell me more. 
 
 There are `1024` RAM cells, each with possible values from `0000` to `ffff`. (All unsigned for now.)
 
 Currently I've got `MOV`, `ADD`, `CMP` and `JMP`(s) working, although only when the code is supplied as a list in code. (So there is no parsing).
 
-Here's a picture of an in-progress program that calculates Fibonacci programs in memory cells.
+Here's a picture of an in-progress program that calculates Fibonacci numbers in memory cells.
 
 ![Here's a picture.](http://i.imgur.com/v1l2q6I.png)
 
