@@ -12,7 +12,12 @@ import java.util.concurrent.TimeUnit;
 public class Processor {
 
     private final MainMemory mem;
-    private boolean isExecuting;
+    private boolean executing;
+
+    public boolean isExecuting() {
+        return executing;
+    }
+    
     private final MainUI parent;
     private int clockSpeedMilliHz = 4000;
 
@@ -40,7 +45,7 @@ public class Processor {
         int ipVal = mem.getIPValue();
         Opcode op = OpcodeData.opcodeOf(ipVal);
         Register dest, src;
-        int arg, val1, val2, offset;
+        int arg, val1, val2, destOffset, offset, destAddr;
         switch (op) {
             case NONE:
                 System.out.println("Encountered " + op.toString() + ".");
@@ -66,21 +71,31 @@ public class Processor {
                 offset = (mem.getIPOffsetValue(2) / 8) - 4095;
                 movRO(dest, src, offset);
                 mem.incIPBy(3);
-                System.out.println("MOV " + dest.toString() + ", [" + src + (offset < 0 ? "" : "+") + offset + "]");
+                System.out.println("MOV " 
+                        + dest 
+                        + ", [" 
+                        + src + (offset < 0 ? "" : "+") + offset 
+                        + "]");
                 break;
             case MOV_R_A:
                 dest = Register.toRegister(mem.getIPOffsetValue(1));
                 arg = mem.getIPOffsetValue(2);
                 movRA(dest, arg);
                 mem.incIPBy(3);
-                System.out.println("MOV " + dest.toString() + ", " + Utils.hex(arg));
+                System.out.println("MOV " 
+                        + dest 
+                        + ", " 
+                        + Utils.hex(arg));
                 break;
             case MOV_R_V:
                 dest = Register.toRegister(mem.getIPOffsetValue(1));
                 arg = mem.getIPOffsetValue(2);
                 movRV(dest, arg);
                 mem.incIPBy(3);
-                System.out.println("MOV " + dest.toString() + ", " + Utils.hex(arg));
+                System.out.println("MOV " 
+                        + dest 
+                        + ", " 
+                        + Utils.hex(arg));
                 break;
             case MOV_A_R:
                 System.out.println("Encountered " + op.toString() + "; not supported yet");
@@ -95,16 +110,59 @@ public class Processor {
                 System.out.println("Encountered " + op.toString() + "; not supported yet");
                 break;
             case MOV_O_R:
-                System.out.println("Encountered " + op.toString() + "; not supported yet");
+                dest = Register.toRegister(mem.getIPOffsetValue(1) % 8);
+                destOffset = (mem.getIPOffsetValue(1) / 8) - 4095;
+                destAddr = mem.getRegisterAddr(dest) + destOffset;
+                
+                src = Register.toRegister(mem.getIPOffsetValue(2));                
+                movAR(destAddr, src);
+                
+                mem.incIPBy(3);
+                System.out.println("MOV [" 
+                        + dest + (destOffset < 0 ? "" : "+") + destOffset 
+                        + "], " + src.toString());
                 break;
             case MOV_O_O:
-                System.out.println("Encountered " + op.toString() + "; not supported yet");
+                dest = Register.toRegister(mem.getIPOffsetValue(1) % 8);
+                destOffset = (mem.getIPOffsetValue(1) / 8) - 4095;
+                destAddr = mem.getRegisterAddr(dest) + destOffset;
+                
+                src = Register.toRegister(mem.getIPOffsetValue(2) % 8);
+                offset = (mem.getIPOffsetValue(2) / 8) - 4095;
+                movAO(destAddr, src, offset);
+                
+                mem.incIPBy(3);
+                System.out.println("MOV [" 
+                        + dest + (destOffset < 0 ? "" : "+") + destOffset 
+                        + "], [" 
+                        + src + (offset < 0 ? "" : "+") + offset 
+                        + "]");
                 break;
-            case MOV_O_A:
-                System.out.println("Encountered " + op.toString() + "; not supported yet");
+            case MOV_O_A:                
+                dest = Register.toRegister(mem.getIPOffsetValue(1) % 8);
+                destOffset = (mem.getIPOffsetValue(1) / 8) - 4095;
+                destAddr = mem.getRegisterAddr(dest) + destOffset;
+                
+                arg = mem.getIPOffsetValue(2);
+                
+                movAA(destAddr, arg);
+                mem.incIPBy(3);
+                System.out.println("MOV [" 
+                        + dest + (destOffset < 0 ? "" : "+") + destOffset 
+                        + "], " + Utils.hex(arg));
                 break;
-            case MOV_O_V:
-                System.out.println("Encountered " + op.toString() + "; not supported yet");
+            case MOV_O_V:                
+                dest = Register.toRegister(mem.getIPOffsetValue(1) % 8);
+                destOffset = (mem.getIPOffsetValue(1) / 8) - 4095;
+                destAddr = mem.getRegisterAddr(dest) + destOffset;
+                
+                arg = mem.getIPOffsetValue(2);
+                movAV(destAddr, arg);
+                
+                mem.incIPBy(3);
+                System.out.println("MOV [" 
+                        + dest + (destOffset < 0 ? "" : "+") + destOffset 
+                        + "], " + Utils.hex(arg));
                 break;
 
             /*
@@ -147,7 +205,20 @@ public class Processor {
                 System.out.println("Encountered " + op.toString() + "; not supported yet");
                 break;
             case ADD_O_O:
-                System.out.println("Encountered " + op.toString() + "; not supported yet");
+                dest = Register.toRegister(mem.getIPOffsetValue(1) % 8);
+                destOffset = (mem.getIPOffsetValue(1) / 8) - 4095;
+                destAddr = mem.getRegisterOffsetAddr(dest, destOffset);
+                
+                src = Register.toRegister(mem.getIPOffsetValue(2) % 8);
+                offset = (mem.getIPOffsetValue(2) / 8) - 4095;
+                addAO(destAddr, src, offset);
+                
+                mem.incIPBy(3);
+                System.out.println("ADD [" 
+                        + dest + (destOffset < 0 ? "" : "+") + destOffset 
+                        + "], [" 
+                        + src + (offset < 0 ? "" : "+") + offset 
+                        + "]");
                 break;
             case ADD_O_A:
                 System.out.println("Encountered " + op.toString() + "; not supported yet");
@@ -408,6 +479,13 @@ public class Processor {
     public void movAR(int dest, Register src) {
         mem.setRamByte(dest, mem.getRegisterAddr(src));
     }
+    
+    /**
+     * Moves the value of a source register into RAM at a specified address.
+     */
+    public void movAO(int dest, Register src, int offset) {
+        mem.setRamByte(dest, mem.getRegisterOffsetValue(src, offset));
+    }
 
     /**
      * Moves the value of the source RAM address into the specified RAM address.
@@ -422,26 +500,57 @@ public class Processor {
     public void movAV(int dest, int value) {
         mem.setRamByte(dest, value);
     }
+    
+    /**
+     * Moves the value of a source register into RAM at a specified address offset from a register.
+     */
+    public void movOR(int dest, int destOffset, Register src) {
+        mem.setRamByte(dest + destOffset, mem.getRegisterAddr(src));
+    }
+    
+    /**
+     * Moves the value of a source register into RAM at a specified address offset.
+     */
+    public void movOO(int dest, int destOffset, Register src, int offset) {
+        mem.setRamByte(dest + destOffset, mem.getRegisterOffsetValue(src, offset));
+    }
+
+    /**
+     * Moves the value of the source RAM address into the specified register offset.
+     */
+    public void movOA(int dest, int destOffset, int addr) {
+        mem.setRamByte(dest + destOffset, mem.getRamByte(addr));
+    }
+
+    /**
+     * Moves a value into the specified RAM register offset.
+     * @param dest
+     * @param destOffset
+     * @param value
+     */
+    public void movOV(int dest, int destOffset, int value) {
+        mem.setRamByte(dest + destOffset, value);
+    }
 
     /**
      * Adds the value of a source register to the destination register.
      */
     public void addRR(Register dest, Register src) {
-        mem.setRegisterAddr(dest, mem.getRegisterAddr(dest) + mem.getRegisterAddr(src));
+        mem.setRegisterValue(dest, mem.getRegisterValue(dest) + mem.getRegisterValue(src));
     }
 
     /**
      * Adds the value of a RAM address to the destination register.
      */
     public void addRA(Register dest, int addr) {
-        mem.setRegisterAddr(dest, mem.getRegisterAddr(dest) + mem.getRamByte(addr));
+        mem.setRegisterValue(dest, mem.getRegisterValue(dest) + mem.getRamByte(addr));
     }
 
     /**
      * Adds a value to the destination register.
      */
     public void addRV(Register dest, int value) {
-        mem.setRegisterAddr(dest, mem.getRegisterAddr(dest) + value);
+        mem.setRegisterValue(dest, mem.getRegisterValue(dest) + value);
     }
 
     /**
@@ -449,6 +558,14 @@ public class Processor {
      */
     public void addAR(int dest, Register src) {
         mem.setRamByte(dest, mem.getRamByte(dest) + mem.getRegisterAddr(src));
+    }
+    
+    /**
+     * Adds the value of a source register into RAM at a specified address.
+     */
+    public void addAO(int dest, Register src, int offset) {
+        System.out.println("Setting " + Utils.fullHex(dest));
+        mem.setRamByte(dest, mem.getRamByte(dest) + mem.getRegisterOffsetValue(src, offset));
     }
 
     /**
@@ -470,7 +587,8 @@ public class Processor {
     }
 
     public void startExecution() {
-        isExecuting = true;
+        System.out.println("Started execution");
+        executing = true;
         task = (ScheduledFuture<Object>) periodicRunner.scheduleAtFixedRate(new Runnable() {
             @Override
             public void run() {
@@ -480,7 +598,8 @@ public class Processor {
     }
 
     void pauseExecution() {
-        isExecuting = false;
+        System.out.println("Paused execution");
+        executing = false;
         task.cancel(true);
     }
 
@@ -493,7 +612,7 @@ public class Processor {
     }
 
     public void changeClockSpeed(int newMilliHz) {
-        if (isExecuting) {
+        if (executing) {
             pauseExecution();
             setClockSpeed(newMilliHz);
             startExecution();

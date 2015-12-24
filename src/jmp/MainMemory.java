@@ -71,12 +71,12 @@ public class MainMemory {
         reg.updateTable();
         ram.update();
     }
-   
+
     public void load(List<Integer> arr) {
         initializeFromArray(arr);
         ram.update();
     }
-    
+
     private void initializeFromArray(List<Integer> arr) {
         if (arr.size() > VMConstants.NUM_ADDRS) {
             System.out.println("Error: don\'t have that much memory!");
@@ -133,6 +133,17 @@ public class MainMemory {
         return registers[g.toId()];
     }
 
+    /** 
+     * This is surprisingly useful.
+     */
+    public int getRegisterOffsetAddr(int i, int offset) {
+        return registers[i] + offset;
+    }
+
+    public int getRegisterOffsetAddr(Register g, int offset) {
+        return registers[g.toId()] + offset;
+    }
+
     public int getRegisterValue(int i) {
         return getRamByte(registers[i]);
     }
@@ -140,7 +151,7 @@ public class MainMemory {
     public int getRegisterValue(Register g) {
         return getRamByte(registers[g.toId()]);
     }
-    
+
     public int getRegisterOffsetValue(int i, int offset) {
         return getRamByte(registers[i] + offset);
     }

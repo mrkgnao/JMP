@@ -11,9 +11,11 @@ import javax.swing.*;
 public class ExecControls extends JPanel {
 
     private final Processor proc;
+    private final MainUI parent;
 
-    public ExecControls(Processor proc) {
+    public ExecControls(Processor proc, MainUI parent) {
         this.proc = proc;
+        this.parent = parent;
         initComponents();
     }
 
@@ -64,6 +66,7 @@ public class ExecControls extends JPanel {
             public void actionPerformed(ActionEvent e) {
                 proc.pauseExecution();
                 stopBtn.setEnabled(false);
+                parent.setWasPausedOnLostFocus(false);
             }
         });
         add(stopBtn);
@@ -79,8 +82,6 @@ public class ExecControls extends JPanel {
         });
         add(stepBtn);
 
-        
-        
         resetBtn.setIcon(new ImageIcon(getClass().getResource("/jmp/img/refresh_icon&16.png")));
         resetBtn.setToolTipText("Reset execution state");
         resetBtn.setPreferredSize(new java.awt.Dimension(30, 25));
@@ -91,7 +92,7 @@ public class ExecControls extends JPanel {
             }
         });
         add(resetBtn);
-        
+
         clearMemoryBtn.setIcon(new ImageIcon(getClass().getResource("/jmp/img/delete_icon&16.png")));
         clearMemoryBtn.setToolTipText("Clear memory");
         clearMemoryBtn.setPreferredSize(new java.awt.Dimension(30, 25));

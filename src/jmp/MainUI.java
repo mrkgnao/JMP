@@ -6,12 +6,10 @@
 package jmp;
 
 import java.awt.*;
-import java.util.HashSet;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import javax.swing.*;
 import javax.swing.GroupLayout.Alignment;
-import jmp.MainMemory;
-import jmp.Processor;
-import jmp.VMConstants;
 import static javax.swing.GroupLayout.PREFERRED_SIZE;
 import javax.swing.text.*;
 
@@ -26,24 +24,102 @@ public class MainUI extends JFrame {
     private final RegisterTable reg;
     private final MainMemory mem;
 
+    private JScrollPane codePane;
+    private JScrollPane outputPane;
+    private JMenuBar menuBar;
+    private JLabel outputArea;
+    private JProgressBar progressBar;
+    private JLabel statusLine;
+
+    private ExecControls execControls;
+    JTextPane codeArea;
+
+    private boolean askOnExit;
+    private boolean pauseOnLostFocus, wasPausedOnLostFocus;
+
+    public void setWasPausedOnLostFocus(boolean wasPausedOnLostFocus) {
+        this.wasPausedOnLostFocus = wasPausedOnLostFocus;
+    }
+
+    public void flipWasPausedOnLostFocus() {
+        this.wasPausedOnLostFocus = !wasPausedOnLostFocus;
+    }
+
+    public void flipPauseOnLostFocus() {
+        this.pauseOnLostFocus = !pauseOnLostFocus;
+    }
+
+    public void flipAskOnExit() {
+        askOnExit = !askOnExit;
+    }
+
     /**
      * Creates new form MainUI
      */
     public MainUI() {
+        this.wasPausedOnLostFocus = false;
+        this.pauseOnLostFocus = false;
+        this.askOnExit = true;
         proc = new Processor(this);
         mem = proc.mainMemory();
         ram = mem.ramTable();
         reg = mem.registerTable();
-        execControls = new ExecControls(proc);
+        execControls = new ExecControls(proc, this);
         initComponents();
         setExtendedState(Frame.MAXIMIZED_BOTH);
 
         ram.update();
     }
 
+    /**
+     * @param args the command line arguments
+     */
+    public static void createAndDisplay(String args[]) {
+        try {
+            UIManager.setLookAndFeel(
+                    UIManager.getSystemLookAndFeelClassName());
+        } catch (Exception e) {
+        }
+
+        java.awt.EventQueue.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                MainUI ui = new MainUI();
+                ui.setVisible(true);
+            }
+        });
+    }
+
     private void initComponents() {
 
         this.setTitle(VMConstants.DEFAULT_WINDOW_TITLE);
+        this.addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowOpened(WindowEvent e) {
+                //throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+            }
+
+            @Override
+            public void windowClosing(WindowEvent e) {
+                doControlledExit();
+            }
+
+            @Override
+            public void windowDeactivated(WindowEvent e) {
+                if (pauseOnLostFocus && proc.isExecuting()) {
+                    proc.pauseExecution();
+                    wasPausedOnLostFocus = true;
+                }
+            }
+
+            @Override
+            public void windowActivated(WindowEvent e) {
+                if (pauseOnLostFocus && wasPausedOnLostFocus && !proc.isExecuting()) {
+                    proc.startExecution();
+                    wasPausedOnLostFocus = false;
+                }
+            }
+        });
 
         codePane = new JScrollPane();
         codeArea = new JTextPane();
@@ -60,8 +136,6 @@ public class MainUI extends JFrame {
         codeArea.setContentType("text/java");
         menuBar = MenuBarFactory.createMenuBar(proc, this);
         setJMenuBar(menuBar);
-
-        setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 
         outputArea.setFont(VMConstants.BIG_MONOSPACE_FONT);
 
@@ -113,33 +187,13 @@ public class MainUI extends JFrame {
         pack();
     }
 
-    /**
-     * @param args the command line arguments
-     */
-    public static void createAndDisplay(String args[]) {
-        try {
-            UIManager.setLookAndFeel(
-                    UIManager.getSystemLookAndFeelClassName());
-        } catch (Exception e) {
+    void doControlledExit() {
+        if (!askOnExit || JOptionPane.showConfirmDialog(null,
+                "Are you really sure, etc. etc. about this?",
+                "Confirmation", JOptionPane.YES_NO_CANCEL_OPTION) == JOptionPane.YES_OPTION) {
+            System.out.println("Exiting with status 0.");
+            System.exit(0);
         }
-
-        java.awt.EventQueue.invokeLater(new Runnable() {
-            @Override
-            public void run() {
-                MainUI ui = new MainUI();
-                ui.setVisible(true);
-            }
-        });
     }
-
-    JTextPane codeArea;
-    private JScrollPane codePane;
-    private JScrollPane outputPane;
-    private JMenuBar menuBar;
-    private JLabel outputArea;
-    private JProgressBar progressBar;
-    private JLabel statusLine;
-
-    private ExecControls execControls;
 
 }

@@ -33,7 +33,9 @@ public class MenuBarFactory {
             askOnExit = new JCheckBoxMenuItem(),
             whatIsAllThis = new JMenuItem(),
             showAbout = new JMenuItem(),
+            pauseWhenFocusLost = new JCheckBoxMenuItem("Pause execution when window loses focus"),
             dumpCode = new JMenuItem();
+
 
     private JRadioButtonMenuItem selectedClockSpeed = new JRadioButtonMenuItem();
     
@@ -49,11 +51,11 @@ public class MenuBarFactory {
     private final JMenuItem showRamValues = new JCheckBoxMenuItem();
 
     private final Processor proc;
-    private final MainUI ui;
+    private final MainUI parent;
 
     public MenuBarFactory(Processor proc, MainUI ui) {
         this.proc = proc;
-        this.ui = ui;
+        this.parent = ui;
         this.sampleProgramList = new JMenuItem[SamplePrograms.NUM_SAMPLE_PROGRAMS];
     }
 
@@ -80,6 +82,13 @@ public class MenuBarFactory {
     }
 
     private void setupPrefsMenu() {
+        pauseWhenFocusLost.setSelected(false);
+        pauseWhenFocusLost.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                parent.flipPauseOnLostFocus();
+            }
+        });
+        
         showRamValues.setText("Show RAM cell values");
         showRamValues.setSelected(true);
         showRamValues.addActionListener(new ActionListener() {
@@ -96,7 +105,9 @@ public class MenuBarFactory {
                 proc.mainMemory().registerTable().toggleShowAsDecimal();
             }
         });
-
+        
+        prefsMenu.add(pauseWhenFocusLost);
+        prefsMenu.addSeparator();
         prefsMenu.add(showRamValues);
         prefsMenu.add(showAsDecimal);
 
@@ -124,12 +135,8 @@ public class MenuBarFactory {
         exit.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent evt) {
-                if (!askOnExit.isSelected() || JOptionPane.showConfirmDialog(null,
-                        "Are you really sure, etc. etc. about this?",
-                        "Confirmation", JOptionPane.YES_NO_CANCEL_OPTION) == JOptionPane.YES_OPTION) {
-                    System.out.println("Exiting with status 0.");
-                    System.exit(0);
-                }
+                parent.flipAskOnExit();
+                parent.doControlledExit();
             }
         });
         exit.setAccelerator(KeyStroke.getKeyStroke('Q', InputEvent.CTRL_DOWN_MASK));
@@ -193,7 +200,7 @@ public class MenuBarFactory {
         dumpCode.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent evt) {
-                System.out.println(ui.codeArea.getText());
+                System.out.println(parent.codeArea.getText());
             }
         });
         debugMenu.add(dumpCode);
@@ -283,7 +290,7 @@ public class MenuBarFactory {
         whatIsAllThis.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-
+                
             }
         });
         helpMenu.add(whatIsAllThis);

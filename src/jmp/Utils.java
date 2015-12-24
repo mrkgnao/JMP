@@ -19,6 +19,11 @@ public class Utils {
     public static String hex(int x) {
         return String.format("%04x", x);
     }
+    
+    public static String fullHex(int x) {
+        return String.format("0x%04x", x);
+    }
+
 
     // four chars. that's why.
     // sorry.
@@ -44,12 +49,32 @@ public class Utils {
         formatter.parse(str, pos);
         return str.length() == pos.getIndex();
     }
-    
+
     public static List<Integer> toIntList(int[] arr) {
         List<Integer> list = new ArrayList<Integer>(arr.length);
-        for(int i : arr) {
+        for (int i : arr) {
             list.add(i);
         }
         return list;
+    }
+
+    public static int decodeOffset(int memoryValue) {
+        return (memoryValue / 8) - 4095;
+    }
+
+    public static int encodeMemoryValue(int regIndex, int offset) {
+        return regIndex + (offset + 4095) * 8;
+    }
+
+    public static int encodeMemoryValue(Register reg, int offset) {
+        return reg.toId() + (offset + 4095) * 8;
+    }
+
+    public static int encodeMemoryValue(int regIndex) {
+        return encodeMemoryValue(regIndex, 0);
+    }
+
+    public static int encodeMemoryValue(Register reg) {
+        return encodeMemoryValue(reg, 0);
     }
 }
