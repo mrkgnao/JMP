@@ -7,6 +7,8 @@ package jmp;
 
 import java.text.NumberFormat;
 import java.text.ParsePosition;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  *
@@ -41,5 +43,13 @@ public class Utils {
         ParsePosition pos = new ParsePosition(0);
         formatter.parse(str, pos);
         return str.length() == pos.getIndex();
+    }
+    
+    public static List<Integer> toIntList(int[] arr) {
+        List<Integer> list = new ArrayList<Integer>(arr.length);
+        for(int i : arr) {
+            list.add(i);
+        }
+        return list;
     }
 }

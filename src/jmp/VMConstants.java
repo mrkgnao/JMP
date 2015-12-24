@@ -9,6 +9,8 @@ import java.awt.Font;
  */
 public class VMConstants {
 
+    public static final String DEFAULT_WINDOW_TITLE = "JMP 0.0.1 beta - a rudimentary VM that runs assembly";
+    
     public static final int RAM_TABLE_COL_LEN = 32;
     public static final int RAM_TABLE_ROW_LEN = 32;
     public static final int NUM_ADDRS = RAM_TABLE_ROW_LEN * RAM_TABLE_COL_LEN;

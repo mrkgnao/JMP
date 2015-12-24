@@ -5,11 +5,8 @@
  */
 package jmp;
 
-import jmp.RegisterTable;
-import jmp.RamTable;
-import javax.swing.*;
-import jmp.Utils;
-import jmp.VMConstants;
+import java.util.Arrays;
+import java.util.List;
 import static jmp.VMConstants.RAM_TABLE_ROW_LEN;
 
 /**
@@ -74,13 +71,18 @@ public class MainMemory {
         reg.updateTable();
         ram.update();
     }
-
-    public void initializeFromArray(int[] arr) {
-        if (arr.length > VMConstants.NUM_ADDRS) {
+   
+    public void load(List<Integer> arr) {
+        initializeFromArray(arr);
+        ram.update();
+    }
+    
+    private void initializeFromArray(List<Integer> arr) {
+        if (arr.size() > VMConstants.NUM_ADDRS) {
             System.out.println("Error: don\'t have that much memory!");
         } else {
-            for (int i = 0; i < arr.length; i++) {
-                this.setRamByte(i, arr[i]);
+            for (int i = 0; i < arr.size(); i++) {
+                this.setRamByte(i, arr.get(i));
             }
         }
     }
@@ -137,6 +139,14 @@ public class MainMemory {
 
     public int getRegisterValue(Register g) {
         return getRamByte(registers[g.toId()]);
+    }
+    
+    public int getRegisterOffsetValue(int i, int offset) {
+        return getRamByte(registers[i] + offset);
+    }
+
+    public int getRegisterOffsetValue(Register g, int offset) {
+        return getRamByte(registers[g.toId()] + offset);
     }
 
     public void setRegisterAddr(int ix, int val) {

@@ -1,6 +1,6 @@
 package jmp;
 
-import java.util.Hashtable;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -15,8 +15,8 @@ import java.util.Map;
  */
 public class TwoWayHashmap<K extends Object, V extends Object> {
 
-    private final Map<K, V> valuesFromKeys = new Hashtable<K, V>();
-    private final Map<V, K> keysFromValues = new Hashtable<V, K>();
+    private final Map<K, V> valuesFromKeys = new HashMap<K, V>();
+    private final Map<V, K> keysFromValues = new HashMap<V, K>();
 
     public synchronized void add(K key, V value) {
         valuesFromKeys.put(key, value);

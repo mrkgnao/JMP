@@ -30,31 +30,21 @@ public class MainUI extends JFrame {
      * Creates new form MainUI
      */
     public MainUI() {
-        proc = new Processor();
+        proc = new Processor(this);
         mem = proc.mainMemory();
         ram = mem.ramTable();
         reg = mem.registerTable();
         execControls = new ExecControls(proc);
         initComponents();
         setExtendedState(Frame.MAXIMIZED_BOTH);
-        
-        mem.initializeFromArray(new int[] {
-            Opcode.MOV_R_V.getIntVal(), Register.A.toId(), 0x0001,
-            Opcode.MOV_R_V.getIntVal(), Register.B.toId(), 0x0001,
-            Opcode.MOV_R_V.getIntVal(), Register.C.toId(), 0x0002,
-            Opcode.MOV_R_R.getIntVal(), Register.A.toId(), Register.B.toId(),
-            Opcode.MOV_R_R.getIntVal(), Register.B.toId(), Register.C.toId(),
-            Opcode.ADD_R_R.getIntVal(), Register.C.toId(), Register.A.toId(),
-            Opcode.JMP.getIntVal(),     0x0009
-        });
-        
+
         ram.update();
     }
 
     private void initComponents() {
 
-        this.setTitle("JMP 0.0.1 beta - a rudimentary VM that runs assembly");
-        
+        this.setTitle(VMConstants.DEFAULT_WINDOW_TITLE);
+
         codePane = new JScrollPane();
         codeArea = new JTextPane();
 
@@ -136,7 +126,8 @@ public class MainUI extends JFrame {
         java.awt.EventQueue.invokeLater(new Runnable() {
             @Override
             public void run() {
-                new MainUI().setVisible(true);
+                MainUI ui = new MainUI();
+                ui.setVisible(true);
             }
         });
     }

@@ -13,17 +13,24 @@ public class Processor {
 
     private final MainMemory mem;
     private boolean isExecuting;
+    private final MainUI parent;
     private int clockSpeedMilliHz = 4000;
 
     ScheduledExecutorService periodicRunner = Executors.newScheduledThreadPool(5);
     ScheduledFuture<Object> task;
 
-    public Processor() {
+    public Processor(MainUI parent) {
         this.mem = new MainMemory();
+        this.parent = parent;
     }
 
     public MainMemory mainMemory() {
         return mem;
+    }
+    
+    public void load(Program prog) {
+        parent.setTitle(VMConstants.DEFAULT_WINDOW_TITLE + " - " + prog.name);
+        mem.load(prog.code);
     }
 
     /*
@@ -33,7 +40,7 @@ public class Processor {
         int ipVal = mem.getIPValue();
         Opcode op = OpcodeData.opcodeOf(ipVal);
         Register dest, src;
-        int arg, val1, val2;
+        int arg, val1, val2, offset;
         switch (op) {
             case NONE:
                 System.out.println("Encountered " + op.toString() + ".");
@@ -52,8 +59,15 @@ public class Processor {
                 mem.incIPBy(3);
                 System.out.println("MOV " + dest.toString() + ", " + src.toString());
                 break;
-            // these two should be indistinguishable thanks to the parser
             case MOV_R_O:
+                dest = Register.toRegister(mem.getIPOffsetValue(1));
+                // The first three (is it? not sure) bits store the source register
+                src = Register.toRegister(mem.getIPOffsetValue(2) % 8);
+                offset = (mem.getIPOffsetValue(2) / 8) - 4095;
+                movRO(dest, src, offset);
+                mem.incIPBy(3);
+                System.out.println("MOV " + dest.toString() + ", [" + src + (offset < 0 ? "" : "+") + offset + "]");
+                break;
             case MOV_R_A:
                 dest = Register.toRegister(mem.getIPOffsetValue(1));
                 arg = mem.getIPOffsetValue(2);
@@ -365,6 +379,13 @@ public class Processor {
      */
     public void movRR(Register dest, Register src) {
         mem.setRegisterAddr(dest, mem.getRegisterAddr(src));
+    }
+    
+    /**
+     * Moves the value of a source register into the destination register.
+     */
+    public void movRO(Register dest, Register src, int offset) {
+        mem.setRegisterAddr(dest, mem.getRegisterOffsetValue(src, offset));
     }
 
     /**

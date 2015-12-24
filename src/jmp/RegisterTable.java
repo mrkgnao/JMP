@@ -2,47 +2,60 @@ package jmp;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.*;
-import jmp.Utils;
-import jmp.VMConstants;
-import jmp.Register;
-import jmp.MainMemory;
-import static jmp.VMConstants.REGISTER_VALUE_FONT_SIZE;
 
 public class RegisterTable extends JPanel {
 
     private final MainMemory memMgr;
+    private boolean showAsDecimal;
 
+
+    // Register labels
+    private JLabel[] gprText;
+
+    private JLabel ipText;
+    private JLabel spText;
+
+    private JLabel zeroText;
+    private JLabel carryText;
+    private JLabel faultText;
+
+    // Buttons
+    private JButton[] gprBtn;
+
+    private JButton ipBtn;
+    private JButton spBtn;
+
+    private JButton zeroBtn;
+    private JButton carryBtn;
+    private JButton faultBtn;
     /**
      * Creates new form RegisterTable
      */
     public RegisterTable(MainMemory mem) {
+        this.showAsDecimal = false;
         initComponents();
         this.memMgr = mem;
         updateTable();
     }
-
     // UI updateTable functions -----------------------------------------------------
     // Register ---------------------------------------------------
     public void updateGPR(Register ix, int val) {
         gprBtn[ix.ordinal()].setText(Utils.hex(val));
     }
-
     public void updateGPR() {
+        int addr;
         for (int i = 0; i < 4; i++) {
-            gprBtn[i].setText(Utils.hex(memMgr.getRegisterAddr(i)));
+            addr = memMgr.getRegisterAddr(i);
+            gprBtn[i].setText(showAsDecimal ? (addr + "") : Utils.hex(addr));
         }
     }
-
     // Pointers ----------------------------------------------
     public void updateIP() {
         ipBtn.setText(Utils.hex(memMgr.getIP()));
     }
-
     public void updateSP() {
         spBtn.setText(Utils.hex(memMgr.getSP()));
     }
-
     // Flags -------------------------------------------------
     public void updateZero() {
         boolean isSet = memMgr.zeroFlagSet();
@@ -53,7 +66,6 @@ public class RegisterTable extends JPanel {
             zeroBtn.setBackground(VMConstants.FLAG_OFF_COLOR);
         }
     }
-
     public void updateCarry() {
         boolean isSet = memMgr.carryFlagSet();
         carryBtn.setText(Utils.flagText(isSet));
@@ -63,7 +75,6 @@ public class RegisterTable extends JPanel {
             carryBtn.setBackground(VMConstants.FLAG_OFF_COLOR);
         }
     }
-
     public void updateFault() {
         boolean isSet = memMgr.faultFlagSet();
         faultBtn.setText(Utils.flagText(isSet));
@@ -73,7 +84,6 @@ public class RegisterTable extends JPanel {
             faultBtn.setBackground(VMConstants.FLAG_OFF_COLOR);
         }
     }
-
     // Nuke it all -------------------------------------------
     public void updateTable() {
         updateGPR();
@@ -83,7 +93,6 @@ public class RegisterTable extends JPanel {
         updateFault();
         updateZero();
     }
-
     // -------------------------------------------------------------------------
     // This function is a crime against humanity -------------------------------
     // -------------------------------------------------------------------------
@@ -314,25 +323,9 @@ public class RegisterTable extends JPanel {
         gridBagConstraints.anchor = GridBagConstraints.CENTER;
         gridBagConstraints.insets = new Insets(6, 0, 0, 0);
         add(gprBtn[0], gridBagConstraints);
-    }// </editor-fold>    
+    }// </editor-fold>
 
-    // Register labels
-    private JLabel[] gprText;
-
-    private JLabel ipText;
-    private JLabel spText;
-
-    private JLabel zeroText;
-    private JLabel carryText;
-    private JLabel faultText;
-
-    // Buttons
-    private JButton[] gprBtn;
-
-    private JButton ipBtn;
-    private JButton spBtn;
-
-    private JButton zeroBtn;
-    private JButton carryBtn;
-    private JButton faultBtn;
+    void toggleShowAsDecimal() {
+        showAsDecimal = !showAsDecimal;
+    }
 }
