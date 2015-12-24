@@ -190,8 +190,9 @@ public class MainUI extends JFrame {
     void doControlledExit() {
         if (!askOnExit || JOptionPane.showConfirmDialog(null,
                 "Are you really sure, etc. etc. about this?",
-                "Confirmation", JOptionPane.YES_NO_CANCEL_OPTION) == JOptionPane.YES_OPTION) {
+                "Confirmation", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
             System.out.println("Exiting with status 0.");
+            proc.pauseExecution();
             System.exit(0);
         }
     }

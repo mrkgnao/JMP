@@ -29,7 +29,7 @@ public class MenuBarFactory {
             flipCarryFlag = new JMenuItem(),
             incrementSP = new JMenuItem(),
             exit = new JMenuItem(),
-            showAsDecimal = new JMenuItem("Show register values in decimal"),
+            showAsDecimal = new JCheckBoxMenuItem("Show register values in decimal"),
             askOnExit = new JCheckBoxMenuItem(),
             whatIsAllThis = new JMenuItem(),
             showAbout = new JMenuItem(),

@@ -327,5 +327,6 @@ public class RegisterTable extends JPanel {
 
     void toggleShowAsDecimal() {
         showAsDecimal = !showAsDecimal;
+        updateTable();
     }
 }

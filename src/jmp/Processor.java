@@ -35,6 +35,7 @@ public class Processor {
     
     public void load(Program prog) {
         parent.setTitle(VMConstants.DEFAULT_WINDOW_TITLE + " - " + prog.name);
+        mem.resetRam();
         mem.load(prog.code);
     }
 
@@ -536,21 +537,23 @@ public class Processor {
      * Adds the value of a source register to the destination register.
      */
     public void addRR(Register dest, Register src) {
-        mem.setRegisterValue(dest, mem.getRegisterValue(dest) + mem.getRegisterValue(src));
+        System.out.println("Adding " + src + " " + mem.getRegisterValue(src) 
+                + " to " + dest + " " + mem.getRegisterValue(dest));
+        mem.setRegisterAddr(dest, mem.getRegisterAddr(dest) + mem.getRegisterAddr(src));
     }
 
     /**
      * Adds the value of a RAM address to the destination register.
      */
     public void addRA(Register dest, int addr) {
-        mem.setRegisterValue(dest, mem.getRegisterValue(dest) + mem.getRamByte(addr));
+        mem.setRegisterAddr(dest, mem.getRegisterAddr(dest) + mem.getRamByte(addr));
     }
 
     /**
      * Adds a value to the destination register.
      */
     public void addRV(Register dest, int value) {
-        mem.setRegisterValue(dest, mem.getRegisterValue(dest) + value);
+        mem.setRegisterAddr(dest, mem.getRegisterAddr(dest) + value);
     }
 
     /**
@@ -561,7 +564,7 @@ public class Processor {
     }
     
     /**
-     * Adds the value of a source register into RAM at a specified address.
+     * Adds the value of a register offset into RAM at a specified address.
      */
     public void addAO(int dest, Register src, int offset) {
         System.out.println("Setting " + Utils.fullHex(dest));
@@ -600,7 +603,10 @@ public class Processor {
     void pauseExecution() {
         System.out.println("Paused execution");
         executing = false;
-        task.cancel(true);
+        try {
+            task.cancel(true);
+        } catch (Exception e) {
+        }
     }
 
     void resetState() {
