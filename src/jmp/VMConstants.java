@@ -48,6 +48,5 @@ public class VMConstants {
     static {
         keywords = new HashSet<String>();
         keywords.addAll(Opcode.getOpcodeNameList());
-        System.out.println(keywords);
     }
 }

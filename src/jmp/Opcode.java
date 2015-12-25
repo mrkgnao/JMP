@@ -10,7 +10,7 @@ import java.util.List;
  */
 public enum Opcode {
 
-    NONE(0),
+    NOP(0),
     // MOVs
     MOV_R_R(1, 2), MOV_R_O(2, 2), MOV_R_A(3, 2), MOV_R_V(4, 2),
     MOV_A_R(5, 2), MOV_A_O(6, 2), MOV_A_A(7, 2), MOV_A_V(8, 2),
@@ -69,7 +69,6 @@ public enum Opcode {
     private Opcode(int value, int arity) {
         this.value = value;
         this.arity = arity;
-        System.out.println(this);
     }
 
     public int getIntVal() {

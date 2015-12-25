@@ -276,7 +276,6 @@ class AsmHighlighter extends DefaultStyledDocument {
             }
             if (newProgElem) {
                 curTok.add(progElem);
-                System.out.println(lineNo + ": " + curTok);
                 tokenList.put(lineNo, curTok);
             }
         }
@@ -435,7 +434,6 @@ class AsmHighlighter extends DefaultStyledDocument {
         for(ArrayList<Integer> line : tokenList.values()) {
             arr.addAll(line);
         }
-        System.out.println(arr);
         return arr;
     }
     

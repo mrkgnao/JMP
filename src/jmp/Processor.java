@@ -38,6 +38,13 @@ public class Processor {
         mem.resetRam();
         mem.load(prog.code);
     }
+    
+    public void load(TextProgram prog) {
+        parent.setTitle(VMConstants.DEFAULT_WINDOW_TITLE + " - " + prog.name);
+        mem.resetRam();
+        parent.codeArea.setText(prog.code);
+        mem.load(parent.getAssembledCode());
+    }
 
     /*
      * Execution. 
@@ -48,7 +55,7 @@ public class Processor {
         Register dest, src;
         int arg, val1, val2, destOffset, offset, destAddr;
         switch (op) {
-            case NONE:
+            case NOP:
                 System.out.println("Encountered " + op.toString() + ".");
                 mem.incIP(); // TODO sure?
                 break;

@@ -116,7 +116,7 @@ public class MenuBarFactory {
 
     private void setupFileMenu() {
         for (int i = 0; i < sampleProgramList.length; i++) {
-            final BinaryProgram prog = SamplePrograms.PROGRAMS.get(i);
+            final BinaryProgram prog = SamplePrograms.BINARY_PROGRAMS.get(i);
             sampleProgramList[i] = new JMenuItem(prog.name);
             sampleProgramList[i].addActionListener(new ActionListener() {
                 @Override

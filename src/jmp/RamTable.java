@@ -86,7 +86,7 @@ public class RamTable extends JPanel {
                     count--;
                 }
                 
-                if(!(op.isEqualTo(Opcode.INVALID) || op.isEqualTo(Opcode.NONE)) && (count == -1)) {
+                if(!(op.isEqualTo(Opcode.INVALID) || op.isEqualTo(Opcode.NOP)) && (count == -1)) {
                     locs[col][row].setToolTipText("addr " + Utils.hex(addr) + " (" + addr + ")" + ", opcode " + op.toString());
                     count = op.getArity();
                 } else {

@@ -92,6 +92,7 @@ public class MainUI extends JFrame {
             public void run() {
                 MainUI ui = new MainUI();
                 ui.setVisible(true);
+                ui.proc.load(SamplePrograms.FIBO_LOOP_REG);
             }
         });
     }
@@ -194,9 +195,9 @@ public class MainUI extends JFrame {
     }
 
     void doControlledExit() {
-        if (!askOnExit || JOptionPane.showConfirmDialog(null,
+        if (!askOnExit || (JOptionPane.showConfirmDialog(null,
                 "Are you really sure, etc. etc. about this?",
-                "Confirmation", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
+                "Confirmation", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION)) {
             System.out.println("Exiting with status 0.");
             proc.pauseExecution();
             System.exit(0);
