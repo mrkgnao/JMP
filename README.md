@@ -5,7 +5,18 @@ As the highly informative mini-description said, this is an assembly language VM
 
 There are `1024` RAM cells, each with possible values from `0000` to `ffff`. (All unsigned for now.)
 
-Currently I've got `MOV`, `ADD`, `CMP` and `JMP`(s) working. No labels yet, unfortunately; you'll have to specify the argument to `JMP` as a number. Also, stack ops haven't been implemented yet.
+Currently I've got `MOV`, `ADD`, `CMP` and `JMP`(s) working, although you have to specify the kind of operand explicitly:
+
+ * `MOV_R_O` means "move a register offset into a register", for instance, things like `MOV_R_O A, [B+2]`.
+ * `ADD_A_V` adds a value into some address, e.g. `ADD_A_V 0xfefe 0x1111`.
+
+This problem should be easy to fix. I hope to get things like `MOV A, B` working within a few days. Most of the code is untested since I'm kinda sick now; I'll get on it ASAP.
+
+**Note that I know little about the "standard restrictions" of assembly (e.g. offsets have to be less than some size, you can't add the value of one address into another, and all such things), so they are not there and you can do much more than is possible in any standard assembler.**
+
+No labels yet, unfortunately; you'll have to specify the argument to `JMP` as a number. Also, stack ops haven't been implemented yet.
+
+The load/save buttons do nothing right now.
 
 This screenshot of an in-progress program brought to you by PicPick. (It's Fibonacci, of course. Don't ask.)
 
@@ -13,6 +24,7 @@ This screenshot of an in-progress program brought to you by PicPick. (It's Fibon
 
 Features:
 
+* (one or two at the moment) sample programs that you can load
 * variable clock speed
 * extensive exception-handling abuse
 * tooltips on the RAM cells tell you the address and the opcode (if any) stored in each cell
