@@ -5,11 +5,11 @@ As the highly informative mini-description said, this is an assembly language VM
 
 There are `1024` RAM cells, each with possible values from `0000` to `ffff`. (All unsigned for now.)
 
-Currently I've got `MOV`, `ADD`, `CMP` and `JMP`(s) working, although only when the code is supplied as a list in code. (So there is no parsing).
+Currently I've got `MOV`, `ADD`, `CMP` and `JMP`(s) working.
 
-Here's a picture of an in-progress program that calculates Fibonacci numbers in memory cells.
+This screenshot of an in-progress program brought to you by PicPick. (It's Fibonacci, of course. Don't ask.)
 
-![Here's a picture.](http://i.imgur.com/v1l2q6I.png)
+![text](http://i.imgur.com/OKSYp0f.png)
 
 # Credits
 
