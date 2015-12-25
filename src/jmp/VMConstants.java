@@ -2,6 +2,8 @@ package jmp;
 
 import java.awt.Color;
 import java.awt.Font;
+import java.util.Arrays;
+import java.util.HashSet;
 
 /**
  *
@@ -41,4 +43,11 @@ public class VMConstants {
     // Clock speeds
     public static final int[] CLOCK_SPEEDS = {500, 1000, 2000, 4000, 8000, 16000, 32000, 64000};
     public static final int NUM_CLOCK_SPEEDS = CLOCK_SPEEDS.length;
+    public static final HashSet<String> keywords;
+    
+    static {
+        keywords = new HashSet<String>();
+        keywords.addAll(Opcode.getOpcodeNameList());
+        System.out.println(keywords);
+    }
 }

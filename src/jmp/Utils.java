@@ -19,11 +19,10 @@ public class Utils {
     public static String hex(int x) {
         return String.format("%04x", x);
     }
-    
+
     public static String fullHex(int x) {
         return String.format("0x%04x", x);
     }
-
 
     // four chars. that's why.
     // sorry.
@@ -39,15 +38,31 @@ public class Utils {
         return (x % VMConstants.NUM_ADDRS);
     }
 
-    public static boolean isKeyword(String s) {
-        return s.indexOf("mov") != -1;
+    public static boolean isNumeric(String str) {
+        try {
+            Integer.parseInt(str);
+            return true;
+        } catch (Exception e) {
+            try {
+                Integer.decode(str);
+                return true;
+            } catch (Exception e2) {
+                return false;
+            }
+        }
     }
 
-    public static boolean isNumeric(String str) {
-        NumberFormat formatter = NumberFormat.getInstance();
-        ParsePosition pos = new ParsePosition(0);
-        formatter.parse(str, pos);
-        return str.length() == pos.getIndex();
+    public static boolean isHex(String str) {
+        try {
+            Integer.decode(str);
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    public static int getNumericValue(String str) {
+        return isHex(str) ? Integer.decode(str) : Integer.parseInt(str);
     }
 
     public static List<Integer> toIntList(int[] arr) {

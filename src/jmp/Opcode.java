@@ -1,5 +1,8 @@
 package jmp;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * R = register, O = register offset, A = value at address, V = value (in that
  * order)
@@ -32,19 +35,31 @@ public enum Opcode {
     PUSH_R(97), PUSH_O(98), PUSH_A(99), PUSH_V(100),
     POP_R(101), POP_O(102), POP_A(103),
     // Jumping
-    JMP(0x71, 1), 
-    JC(0x72), JNC(0x73), 
+    JMP(0x71, 1),
+    JC(0x72), JNC(0x73),
     JZ(0x74), JNZ(0x75),
     JA(0x76), JAE(0x77),
     JB(0x78), JBE(0x79),
     JE(0x7a), JNE(0x7b),
     // Compare
     CMP_R_R(0x140, 3),
-    
     INVALID(0xffff);
 
     private final int value;
     private final int arity;
+
+    static List<String> opcodeNameList;
+
+    public static List<String> getOpcodeNameList() {
+        if (opcodeNameList == null) {
+            Opcode[] vals = values();
+            opcodeNameList = new ArrayList<String>(vals.length);
+            for (int i = 0; i < vals.length; i++) {
+                opcodeNameList.add(i, vals[i].name());
+            }
+        }
+        return opcodeNameList;
+    }
 
     private Opcode(int v) {
         this.value = v;
@@ -54,8 +69,9 @@ public enum Opcode {
     private Opcode(int value, int arity) {
         this.value = value;
         this.arity = arity;
+        System.out.println(this);
     }
-    
+
     public int getIntVal() {
         return value;
     }
@@ -63,7 +79,7 @@ public enum Opcode {
     public int getArity() {
         return arity;
     }
-    
+
     public boolean isEqualTo(Opcode o) {
         return o.value == value;
     }

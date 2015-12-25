@@ -1,6 +1,8 @@
 package jmp;
 
-import java.awt.*;
+import java.awt.Color;
+import java.awt.Font;
+import java.awt.FontMetrics;
 import java.text.NumberFormat;
 import java.text.ParsePosition;
 import java.util.*;
@@ -22,32 +24,36 @@ class AsmHighlighter extends DefaultStyledDocument {
     public static final SimpleAttributeSet DEFAULT_KEYWORD;
     public static final SimpleAttributeSet DEFAULT_NUMBER;
 
+    public Map<Integer, ArrayList<Integer>> tokenList;
+    public int progElem;
+    public boolean newProgElem;
+
     static {
         DEFAULT_NORMAL = new SimpleAttributeSet();
         StyleConstants.setForeground(DEFAULT_NORMAL, Color.BLACK);
         StyleConstants.setFontFamily(DEFAULT_NORMAL, DEFAULT_FONT_FAMILY);
         StyleConstants.setFontSize(DEFAULT_NORMAL, DEFAULT_FONT_SIZE);
-        
+
         DEFAULT_COMMENT = new SimpleAttributeSet();
         StyleConstants.setForeground(DEFAULT_COMMENT, new java.awt.Color(50, 50, 50)); //dark green
         StyleConstants.setFontFamily(DEFAULT_COMMENT, DEFAULT_FONT_FAMILY);
         StyleConstants.setItalic(DEFAULT_COMMENT, true);
         StyleConstants.setFontSize(DEFAULT_COMMENT, DEFAULT_FONT_SIZE);
-        
+
         DEFAULT_STRING = new SimpleAttributeSet();
         StyleConstants.setForeground(DEFAULT_STRING, new java.awt.Color(153, 0, 107)); //dark pink
         StyleConstants.setFontFamily(DEFAULT_STRING, DEFAULT_FONT_FAMILY);
         StyleConstants.setFontSize(DEFAULT_STRING, DEFAULT_FONT_SIZE);
-        
+
         //default style for new keyword types
         DEFAULT_KEYWORD = new SimpleAttributeSet();
         StyleConstants.setForeground(DEFAULT_KEYWORD, new java.awt.Color(0, 0, 153)); //dark blue
         StyleConstants.setBold(DEFAULT_KEYWORD, true);
         StyleConstants.setFontFamily(DEFAULT_KEYWORD, DEFAULT_FONT_FAMILY);
-        StyleConstants.setFontSize(DEFAULT_KEYWORD, DEFAULT_FONT_SIZE); 
-        
+        StyleConstants.setFontSize(DEFAULT_KEYWORD, DEFAULT_FONT_SIZE);
+
         DEFAULT_NUMBER = new SimpleAttributeSet();
-        StyleConstants.setForeground(DEFAULT_NUMBER, new java.awt.Color(204, 82, 0)); 
+        StyleConstants.setForeground(DEFAULT_NUMBER, new java.awt.Color(204, 82, 0));
         StyleConstants.setBold(DEFAULT_NUMBER, true);
         StyleConstants.setFontFamily(DEFAULT_NUMBER, DEFAULT_FONT_FAMILY);
         StyleConstants.setFontSize(DEFAULT_NUMBER, DEFAULT_FONT_SIZE);
@@ -60,16 +66,17 @@ class AsmHighlighter extends DefaultStyledDocument {
     private final MutableAttributeSet comment = DEFAULT_COMMENT;
     private final MutableAttributeSet quote = DEFAULT_STRING;
     private final MutableAttributeSet number = DEFAULT_NUMBER;
-    
-    private final HashSet keywords;
+
     private int fontSize = DEFAULT_FONT_SIZE;
     private String fontName = DEFAULT_FONT_FAMILY;
 
     public AsmHighlighter(final HashSet keywords) {
+        this.progElem = 0;
+        this.newProgElem = false;
+        this.tokenList = new HashMap<Integer, ArrayList<Integer>>();
         doc = this;
         rootElement = doc.getDefaultRootElement();
         putProperty(DefaultEditorKit.EndOfLineStringProperty, "\n");
-        this.keywords = keywords;
     }
 
     public enum ATTR_TYPE {
@@ -79,19 +86,30 @@ class AsmHighlighter extends DefaultStyledDocument {
     /**
      * Sets the font of the specified attribute
      *
-     * @param attr the attribute to apply this font to (normal, comment, string)
+     * @param attr  the attribute to apply this font to (normal, comment,
+     *              string)
      * @param style font style (Font.BOLD, Font.ITALIC, Font.PLAIN)
      */
     public void setAttributeFont(ATTR_TYPE attr, int style) {
         Font f = new Font(fontName, style, fontSize);
-        if (attr == ATTR_TYPE.comment) {
-            setAttributeFont(comment, f);
-        } else if (attr == ATTR_TYPE.opcode) {
-            setAttributeFont(keyword, f);
-        } else if (attr == ATTR_TYPE.string) {
-            setAttributeFont(quote, f);
-        } else {
-            setAttributeFont(normal, f);
+        if (null != attr) {
+            switch (attr) {
+                case comment:
+                    setAttributeFont(comment, f);
+                    break;
+                case opcode:
+                    setAttributeFont(keyword, f);
+                    break;
+                case string:
+                    setAttributeFont(quote, f);
+                    break;
+                case number:
+                    setAttributeFont(number, f);
+                    break;
+                default:
+                    setAttributeFont(normal, f);
+                    break;
+            }
         }
     }
 
@@ -99,7 +117,7 @@ class AsmHighlighter extends DefaultStyledDocument {
      * Sets the font of the specified attribute
      *
      * @param attr attribute to apply this font to
-     * @param f the font to use
+     * @param f    the font to use
      */
     public static void setAttributeFont(MutableAttributeSet attr, Font f) {
         StyleConstants.setBold(attr, f.isBold());
@@ -112,18 +130,25 @@ class AsmHighlighter extends DefaultStyledDocument {
      * Sets the foreground (font) color of the specified attribute
      *
      * @param attr the attribute to apply this font to (normal, comment,
-     * keyword, string)
-     * @param c the color to use
+     *             keyword, string)
+     * @param c    the color to use
      */
     public void setAttributeColor(ATTR_TYPE attr, Color c) {
-        if (attr == ATTR_TYPE.comment) {
-            setAttributeColor(comment, c);
-        } else if (attr == ATTR_TYPE.opcode) {
-            setAttributeColor(keyword, c);
-        } else if (attr == ATTR_TYPE.string) {
-            setAttributeColor(quote, c);
-        } else {
-            setAttributeColor(normal, c);
+        if (null != attr) {
+            switch (attr) {
+                case comment:
+                    setAttributeColor(comment, c);
+                    break;
+                case opcode:
+                    setAttributeColor(keyword, c);
+                    break;
+                case string:
+                    setAttributeColor(quote, c);
+                    break;
+                default:
+                    setAttributeColor(normal, c);
+                    break;
+            }
         }
     }
 
@@ -131,7 +156,7 @@ class AsmHighlighter extends DefaultStyledDocument {
      * Sets the foreground (font) color of the specified attribute
      *
      * @param attr attribute to apply this color to
-     * @param c the color to use
+     * @param c    the color to use
      */
     public static void setAttributeColor(MutableAttributeSet attr, Color c) {
         StyleConstants.setForeground(attr, c);
@@ -160,6 +185,7 @@ class AsmHighlighter extends DefaultStyledDocument {
     /*
      *  Override to apply syntax highlighting after the document has been updated
      */
+    @Override
     public void insertString(int offset, String str, AttributeSet a) throws BadLocationException {
         if (str.equals("{")) {
             str = addMatchingBrace(offset);
@@ -171,6 +197,7 @@ class AsmHighlighter extends DefaultStyledDocument {
     /*
      *  Override to apply syntax highlighting after the document has been updated
      */
+    @Override
     public void remove(int offset, int length) throws BadLocationException {
         super.remove(offset, length);
         processChangedLines(offset, 0);
@@ -273,10 +300,10 @@ class AsmHighlighter extends DefaultStyledDocument {
     /*
      *  Parse the line to determine the appropriate highlighting
      */
-    private void applyHighlighting(String content, int line)
+    private void applyHighlighting(String content, int lineNo)
             throws BadLocationException {
-        int startOffset = rootElement.getElement(line).getStartOffset();
-        int endOffset = rootElement.getElement(line).getEndOffset() - 1;
+        int startOffset = rootElement.getElement(lineNo).getStartOffset();
+        int endOffset = rootElement.getElement(lineNo).getEndOffset() - 1;
         int lineLength = endOffset - startOffset;
         int contentLength = content.length();
         if (endOffset >= contentLength) {
@@ -299,7 +326,7 @@ class AsmHighlighter extends DefaultStyledDocument {
             endOffset = index - 1;
         }
         //  check for tokens
-        checkForTokens(content, startOffset, endOffset);
+        checkForTokens(content, startOffset, endOffset, lineNo);
     }
 
     /*
@@ -345,7 +372,8 @@ class AsmHighlighter extends DefaultStyledDocument {
     /*
      *	Parse the line for tokens to highlight
      */
-    private void checkForTokens(String content, int startOffset, int endOffset) {
+    private void checkForTokens(String content, int startOffset, int endOffset, int lineNo) {
+        ArrayList<Integer> curTok = new ArrayList<Integer>();
         while (startOffset <= endOffset) {
             //  skip the delimiters to find the start of a new token
             while (isDelimiter(content.substring(startOffset, startOffset + 1))) {
@@ -359,7 +387,12 @@ class AsmHighlighter extends DefaultStyledDocument {
             if (isQuoteDelimiter(content.substring(startOffset, startOffset + 1))) {
                 startOffset = getQuoteToken(content, startOffset, endOffset);
             } else {
-                startOffset = getOtherToken(content, startOffset, endOffset);
+                startOffset = getOtherToken(content, startOffset, endOffset, lineNo);
+            }
+            if (newProgElem) {
+                curTok.add(progElem);
+                System.out.println(lineNo + ": " + curTok);
+                tokenList.put(lineNo, curTok);
             }
         }
     }
@@ -389,7 +422,8 @@ class AsmHighlighter extends DefaultStyledDocument {
         return endOfQuote + 1;
     }
 
-    private int getOtherToken(String content, int startOffset, int endOffset) {
+    private int getOtherToken(String content, int startOffset, int endOffset, int lineNo) {
+        newProgElem = false;
         int endOfToken = startOffset + 1;
         while (endOfToken <= endOffset) {
             if (isDelimiter(content.substring(endOfToken, endOfToken + 1))) {
@@ -399,8 +433,12 @@ class AsmHighlighter extends DefaultStyledDocument {
         }
         String token = content.substring(startOffset, endOfToken);
         if (isKeyword(token)) {
+            progElem = (Opcode.valueOf(token).getIntVal());
+            newProgElem = true;
             doc.setCharacterAttributes(startOffset, endOfToken - startOffset, keyword, false);
         } else if (Utils.isNumeric(token)) {
+            progElem = (Utils.getNumericValue(token));
+            newProgElem = true;
             doc.setCharacterAttributes(startOffset, endOfToken - startOffset, number, false);
         }
         return endOfToken + 1;
@@ -466,7 +504,7 @@ class AsmHighlighter extends DefaultStyledDocument {
     }
 
     protected boolean isKeyword(String token) {
-        return keywords.contains(token);
+        return VMConstants.keywords.contains(token);
     }
 
     protected String getStartDelimiter() {
@@ -485,7 +523,6 @@ class AsmHighlighter extends DefaultStyledDocument {
         return "\\" + quoteDelimiter;
     }
 
-
     protected String addMatchingBrace(int offset) throws BadLocationException {
         StringBuilder whiteSpace = new StringBuilder();
         int line = rootElement.getElementIndex(offset);
@@ -499,7 +536,9 @@ class AsmHighlighter extends DefaultStyledDocument {
                 break;
             }
         }
-        return "{-\n" + whiteSpace.toString() + "\tMultiline comment here\n" + whiteSpace.toString() + "-}";
+        return "{-\n" + whiteSpace.toString()
+                + "\tMultiline comment here\n"
+                + whiteSpace.toString() + "-}";
     }
 
     /**
