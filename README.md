@@ -5,11 +5,18 @@ As the highly informative mini-description said, this is an assembly language VM
 
 There are `1024` RAM cells, each with possible values from `0000` to `ffff`. (All unsigned for now.)
 
-Currently I've got `MOV`, `ADD`, `CMP` and `JMP`(s) working.
+Currently I've got `MOV`, `ADD`, `CMP` and `JMP`(s) working. No labels yet, unfortunately; you'll have to specify the argument to `JMP` as a number. Also, stack ops haven't been implemented yet.
 
 This screenshot of an in-progress program brought to you by PicPick. (It's Fibonacci, of course. Don't ask.)
 
 ![text](http://i.imgur.com/OKSYp0f.png)
+
+Features:
+
+* variable clock speed
+* extensive exception-handling abuse
+* tooltips on the RAM cells tell you the address and the opcode (if any) stored in each cell
+* more to come soon
 
 # Credits
 
