@@ -8,6 +8,7 @@ package jmp;
 import java.awt.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.util.ArrayList;
 import javax.swing.*;
 import javax.swing.GroupLayout.Alignment;
 import static javax.swing.GroupLayout.PREFERRED_SIZE;
@@ -30,6 +31,7 @@ public class MainUI extends JFrame {
     private JLabel outputArea;
     private JProgressBar progressBar;
     private JLabel statusLine;
+    private AsmEditorKit editorKit;
 
     private ExecControls execControls;
     JTextPane codeArea;
@@ -51,6 +53,10 @@ public class MainUI extends JFrame {
 
     public void flipAskOnExit() {
         askOnExit = !askOnExit;
+    }    
+    
+    public ArrayList<Integer> getAssembledCode() {
+        return editorKit.doc.getTokenList();
     }
 
     /**
@@ -130,7 +136,7 @@ public class MainUI extends JFrame {
         statusLine = new JLabel();
         progressBar = new JProgressBar();
 
-        EditorKit editorKit = new AsmEditorKit();
+        editorKit = new AsmEditorKit();
 
         codeArea.setEditorKitForContentType("text/java", editorKit);
         codeArea.setContentType("text/java");

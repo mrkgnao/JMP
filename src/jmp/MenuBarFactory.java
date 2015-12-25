@@ -116,7 +116,7 @@ public class MenuBarFactory {
 
     private void setupFileMenu() {
         for (int i = 0; i < sampleProgramList.length; i++) {
-            final Program prog = SamplePrograms.PROGRAMS.get(i);
+            final BinaryProgram prog = SamplePrograms.PROGRAMS.get(i);
             sampleProgramList[i] = new JMenuItem(prog.name);
             sampleProgramList[i].addActionListener(new ActionListener() {
                 @Override
@@ -196,11 +196,11 @@ public class MenuBarFactory {
 
         debugMenu.addSeparator();
 
-        dumpCode.setText("Dump code to console");
+        dumpCode.setText("Dump assembled code to console");
         dumpCode.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent evt) {
-                System.out.println(parent.codeArea.getText());
+                System.out.println(parent.getAssembledCode());
             }
         });
         debugMenu.add(dumpCode);

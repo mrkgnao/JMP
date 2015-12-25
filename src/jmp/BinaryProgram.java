@@ -11,17 +11,17 @@ import java.util.List;
  *
  * @author admin
  */
-public class Program {
+public class BinaryProgram {
     
     final String name;
     final List<Integer> code;
 
-    public Program(String name, List<Integer> code) {
+    public BinaryProgram(String name, List<Integer> code) {
         this.code = code;
         this.name = name;
     }
         
-    public Program(String name, int[] code) {
+    public BinaryProgram(String name, int[] code) {
         this.code = Utils.toIntList(code);
         this.name = name;
     }

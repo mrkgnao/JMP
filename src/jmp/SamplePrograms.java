@@ -9,9 +9,9 @@ import java.util.List;
  */
 public class SamplePrograms {
     
-    public static final List<Program> PROGRAMS = new ArrayList<Program>();
+    public static final List<BinaryProgram> PROGRAMS = new ArrayList<BinaryProgram>();
     
-    public static final Program INFINITE_FIBONACCI_LOOP_REG = new Program(
+    public static final BinaryProgram INFINITE_FIBONACCI_LOOP_REG = new BinaryProgram(
             "An infinite fibonacci loop (with registers)",
             new int[]{
                 Opcode.MOV_R_V.getIntVal(), Register.A.toId(), 0x0001,
@@ -25,7 +25,7 @@ public class SamplePrograms {
                 Opcode.JMP.getIntVal(), 0x0009
             });
     
-    public static final Program INFINITE_FIBONACCI_LOOP_VAL = new Program(
+    public static final BinaryProgram INFINITE_FIBONACCI_LOOP_VAL = new BinaryProgram(
             "An infinite fibonacci loop (with values)",
             new int[]{
                 Opcode.MOV_R_V.getIntVal(), Register.A.toId(), 64,

@@ -3,8 +3,6 @@ package jmp;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.FontMetrics;
-import java.text.NumberFormat;
-import java.text.ParsePosition;
 import java.util.*;
 import javax.swing.text.*;
 
@@ -19,6 +17,7 @@ class AsmHighlighter extends DefaultStyledDocument {
     public static final String DEFAULT_FONT_FAMILY = "Source Code Pro";
     public static final int DEFAULT_FONT_SIZE = 14;
     public static final SimpleAttributeSet DEFAULT_NORMAL;
+    public static final SimpleAttributeSet DEFAULT_REGISTER;
     public static final SimpleAttributeSet DEFAULT_COMMENT;
     public static final SimpleAttributeSet DEFAULT_STRING;
     public static final SimpleAttributeSet DEFAULT_KEYWORD;
@@ -33,6 +32,14 @@ class AsmHighlighter extends DefaultStyledDocument {
         StyleConstants.setForeground(DEFAULT_NORMAL, Color.BLACK);
         StyleConstants.setFontFamily(DEFAULT_NORMAL, DEFAULT_FONT_FAMILY);
         StyleConstants.setFontSize(DEFAULT_NORMAL, DEFAULT_FONT_SIZE);
+        
+        DEFAULT_REGISTER = new SimpleAttributeSet();
+        StyleConstants.setBold(DEFAULT_REGISTER, true);
+        StyleConstants.setUnderline(DEFAULT_REGISTER, true);
+        StyleConstants.setItalic(DEFAULT_REGISTER, true);
+        StyleConstants.setForeground(DEFAULT_REGISTER, Color.BLACK);
+        StyleConstants.setFontFamily(DEFAULT_REGISTER, DEFAULT_FONT_FAMILY);
+        StyleConstants.setFontSize(DEFAULT_REGISTER, DEFAULT_FONT_SIZE);
 
         DEFAULT_COMMENT = new SimpleAttributeSet();
         StyleConstants.setForeground(DEFAULT_COMMENT, new java.awt.Color(50, 50, 50)); //dark green
@@ -42,10 +49,10 @@ class AsmHighlighter extends DefaultStyledDocument {
 
         DEFAULT_STRING = new SimpleAttributeSet();
         StyleConstants.setForeground(DEFAULT_STRING, new java.awt.Color(153, 0, 107)); //dark pink
+        StyleConstants.setBold(DEFAULT_STRING, true);
         StyleConstants.setFontFamily(DEFAULT_STRING, DEFAULT_FONT_FAMILY);
         StyleConstants.setFontSize(DEFAULT_STRING, DEFAULT_FONT_SIZE);
 
-        //default style for new keyword types
         DEFAULT_KEYWORD = new SimpleAttributeSet();
         StyleConstants.setForeground(DEFAULT_KEYWORD, new java.awt.Color(0, 0, 153)); //dark blue
         StyleConstants.setBold(DEFAULT_KEYWORD, true);
@@ -58,10 +65,11 @@ class AsmHighlighter extends DefaultStyledDocument {
         StyleConstants.setFontFamily(DEFAULT_NUMBER, DEFAULT_FONT_FAMILY);
         StyleConstants.setFontSize(DEFAULT_NUMBER, DEFAULT_FONT_SIZE);
     }
+
     private final DefaultStyledDocument doc;
     private final Element rootElement;
-    private boolean multiLineComment;
     private final MutableAttributeSet normal = DEFAULT_NORMAL;
+    private final MutableAttributeSet register = DEFAULT_REGISTER;
     private final MutableAttributeSet keyword = DEFAULT_KEYWORD;
     private final MutableAttributeSet comment = DEFAULT_COMMENT;
     private final MutableAttributeSet quote = DEFAULT_STRING;
@@ -70,7 +78,7 @@ class AsmHighlighter extends DefaultStyledDocument {
     private int fontSize = DEFAULT_FONT_SIZE;
     private String fontName = DEFAULT_FONT_FAMILY;
 
-    public AsmHighlighter(final HashSet keywords) {
+    public AsmHighlighter() {
         this.progElem = 0;
         this.newProgElem = false;
         this.tokenList = new HashMap<Integer, ArrayList<Integer>>();
@@ -80,7 +88,7 @@ class AsmHighlighter extends DefaultStyledDocument {
     }
 
     public enum ATTR_TYPE {
-        plainText, comment, opcode, string, number;
+        plainText, comment, opcode, string, number, register;
     }
 
     /**
@@ -187,8 +195,11 @@ class AsmHighlighter extends DefaultStyledDocument {
      */
     @Override
     public void insertString(int offset, String str, AttributeSet a) throws BadLocationException {
-        if (str.equals("{")) {
-            str = addMatchingBrace(offset);
+        if (str.equals("[")) {
+            str = "[]";
+        }
+        if (str.equals("\"")) {
+            str = "\"\"";
         }
         super.insertString(offset, str, a);
         processChangedLines(offset, str.length());
@@ -213,87 +224,9 @@ class AsmHighlighter extends DefaultStyledDocument {
         //  The lines affected by the latest document update
         int startLine = rootElement.getElementIndex(offset);
         int endLine = rootElement.getElementIndex(offset + length);
-        //  Make sure all comment lines prior to the start line are commented
-        //  and determine if the start line is still in a multi line comment
-        setMultiLineComment(commentLinesBefore(content, startLine));
         //  Do the actual highlighting
         for (int i = startLine; i <= endLine; i++) {
             applyHighlighting(content, i);
-        }
-        //  Resolve highlighting to the next end multi line delimiter
-        if (isMultiLineComment()) {
-            commentLinesAfter(content, endLine);
-        } else {
-            highlightLinesAfter(content, endLine);
-        }
-    }
-
-    /*
-     *  Highlight lines when a multi line comment is still 'open'
-     *  (ie. matching end delimiter has not yet been encountered)
-     */
-    private boolean commentLinesBefore(String content, int line) {
-        int offset = rootElement.getElement(line).getStartOffset();
-        //  Start of comment not found, nothing to do
-        int startDelimiter = lastIndexOf(content, getStartDelimiter(), offset - 2);
-        if (startDelimiter < 0) {
-            return false;
-        }
-        //  Matching start/end of comment found, nothing to do
-        int endDelimiter = indexOf(content, getEndDelimiter(), startDelimiter);
-        if (endDelimiter < offset & endDelimiter != -1) {
-            return false;
-        }
-        //  End of comment not found, highlight the lines
-        doc.setCharacterAttributes(startDelimiter, offset - startDelimiter + 1, comment, false);
-        return true;
-    }
-
-    /*
-     *  Highlight comment lines to matching end delimiter
-     */
-    private void commentLinesAfter(String content, int line) {
-        int offset = rootElement.getElement(line).getEndOffset();
-        //  End of comment not found, nothing to do
-        int endDelimiter = indexOf(content, getEndDelimiter(), offset);
-        if (endDelimiter < 0) {
-            return;
-        }
-        //  Matching start/end of comment found, comment the lines
-        int startDelimiter = lastIndexOf(content, getStartDelimiter(), endDelimiter);
-        if (startDelimiter < 0 || startDelimiter <= offset) {
-            doc.setCharacterAttributes(offset, endDelimiter - offset + 1, comment, false);
-        }
-    }
-
-    /*
-     *  Highlight lines to start or end delimiter
-     */
-    private void highlightLinesAfter(String content, int line)
-            throws BadLocationException {
-        int offset = rootElement.getElement(line).getEndOffset();
-        //  Start/End delimiter not found, nothing to do
-        int startDelimiter = indexOf(content, getStartDelimiter(), offset);
-        int endDelimiter = indexOf(content, getEndDelimiter(), offset);
-        if (startDelimiter < 0) {
-            startDelimiter = content.length();
-        }
-        if (endDelimiter < 0) {
-            endDelimiter = content.length();
-        }
-        int delimiter = Math.min(startDelimiter, endDelimiter);
-        if (delimiter < offset) {
-            return;
-        }
-        //	Start/End delimiter found, reapply highlighting
-        int endLine = rootElement.getElementIndex(delimiter);
-        for (int i = line + 1; i < endLine; i++) {
-            Element branch = rootElement.getElement(i);
-            Element leaf = doc.getCharacterElement(branch.getStartOffset());
-            AttributeSet as = leaf.getAttributes();
-            if (as.isEqual(comment)) {
-                applyHighlighting(content, i);
-            }
         }
     }
 
@@ -309,64 +242,16 @@ class AsmHighlighter extends DefaultStyledDocument {
         if (endOffset >= contentLength) {
             endOffset = contentLength - 1;
         }
-        //  check for multi line comments
-        //  (always set the comment attribute for the entire line)
-        if (endingMultiLineComment(content, startOffset, endOffset)
-                || isMultiLineComment()
-                || startingMultiLineComment(content, startOffset, endOffset)) {
-            doc.setCharacterAttributes(startOffset, endOffset - startOffset + 1, comment, false);
-            return;
-        }
         //  set normal attributes for the line
         doc.setCharacterAttributes(startOffset, lineLength, normal, true);
         //  check for single line comment
-        int index = content.indexOf(getSingleLineDelimiter(), startOffset);
+        int index = content.indexOf(getCommentDelimiter(), startOffset);
         if ((index > -1) && (index < endOffset)) {
             doc.setCharacterAttributes(index, endOffset - index + 1, comment, false);
             endOffset = index - 1;
         }
         //  check for tokens
         checkForTokens(content, startOffset, endOffset, lineNo);
-    }
-
-    /*
-     *  Does this line contain the start delimiter
-     */
-    private boolean startingMultiLineComment(String content, int startOffset, int endOffset)
-            throws BadLocationException {
-        int index = indexOf(content, getStartDelimiter(), startOffset);
-        if ((index < 0) || (index > endOffset)) {
-            return false;
-        } else {
-            setMultiLineComment(true);
-            return true;
-        }
-    }
-
-    /*
-     *  Does this line contain the end delimiter
-     */
-    private boolean endingMultiLineComment(String content, int startOffset, int endOffset)
-            throws BadLocationException {
-        int index = indexOf(content, getEndDelimiter(), startOffset);
-        if ((index < 0) || (index > endOffset)) {
-            return false;
-        } else {
-            setMultiLineComment(false);
-            return true;
-        }
-    }
-
-    /*
-     *  We have found a start delimiter
-     *  and are still searching for the end delimiter
-     */
-    private boolean isMultiLineComment() {
-        return multiLineComment;
-    }
-
-    private void setMultiLineComment(boolean value) {
-        multiLineComment = value;
     }
 
     /*
@@ -440,6 +325,44 @@ class AsmHighlighter extends DefaultStyledDocument {
             progElem = (Utils.getNumericValue(token));
             newProgElem = true;
             doc.setCharacterAttributes(startOffset, endOfToken - startOffset, number, false);
+        } else if (Utils.isRegister(token)) {
+            progElem = Register.valueOf(token).toId();
+            newProgElem = true;
+            doc.setCharacterAttributes(startOffset, endOfToken - startOffset, register, false);
+        } else if (token.startsWith("[") && token.endsWith("]")) {
+            token.replaceAll("\\s", "");
+            String off = token.substring(1, token.length() - 1);
+            int idx = 0, sign = 1;
+            if (token.contains("+") || token.contains("-")) {
+                idx = off.indexOf("+");
+                sign = 1;
+                if (idx == -1) {
+                    idx = off.indexOf("-");
+                    sign = -1;
+                }
+                String gprText = off.substring(0, idx);
+                String offsetText = off.substring(idx + 1);
+                // Let's abuse exception handling!
+                try {
+                    Register reg = Register.valueOf(gprText);
+                    int offset = Utils.getNumericValue(offsetText) * sign;
+                    progElem = Utils.encodeMemoryValue(reg, offset);
+                    newProgElem = true;
+                    doc.setCharacterAttributes(startOffset + 1, idx, register, false);                    
+                    doc.setCharacterAttributes(startOffset + idx + 2, off.length() - idx - 1, number, false);                    
+                } catch (Exception e) {
+                }
+            } else {
+                // (again)
+                try {
+                    Register reg = Register.valueOf(off);
+                    progElem = Utils.encodeMemoryValue(reg, 0);
+                    newProgElem = true;
+                    doc.setCharacterAttributes(startOffset + 1, off.length(), register, false);
+                } catch (Exception e) {
+                }
+            }
+
         }
         return endOfToken + 1;
     }
@@ -485,37 +408,21 @@ class AsmHighlighter extends DefaultStyledDocument {
     }
 
     protected boolean isDelimiter(String character) {
-        String operands = ";:{}()[]+-/%<=>!&|^~*";
-        if (Character.isWhitespace(character.charAt(0))
-                || operands.indexOf(character) != -1) {
-            return true;
-        } else {
-            return false;
-        }
+        String operands = ",;:{}()/%<=>!&|^~*";
+        return Character.isWhitespace(character.charAt(0))
+                || operands.contains(character);
     }
 
     protected boolean isQuoteDelimiter(String character) {
         String quoteDelimiters = "\"";
-        if (quoteDelimiters.indexOf(character) < 0) {
-            return false;
-        } else {
-            return true;
-        }
+        return quoteDelimiters.contains(character);
     }
 
     protected boolean isKeyword(String token) {
         return VMConstants.keywords.contains(token);
     }
 
-    protected String getStartDelimiter() {
-        return "{-";
-    }
-
-    protected String getEndDelimiter() {
-        return "-}";
-    }
-
-    protected String getSingleLineDelimiter() {
+    protected String getCommentDelimiter() {
         return ";";
     }
 
@@ -523,24 +430,15 @@ class AsmHighlighter extends DefaultStyledDocument {
         return "\\" + quoteDelimiter;
     }
 
-    protected String addMatchingBrace(int offset) throws BadLocationException {
-        StringBuilder whiteSpace = new StringBuilder();
-        int line = rootElement.getElementIndex(offset);
-        int i = rootElement.getElement(line).getStartOffset();
-        while (true) {
-            String temp = doc.getText(i, 1);
-            if (temp.equals(" ") || temp.equals("\t")) {
-                whiteSpace.append(temp);
-                i++;
-            } else {
-                break;
-            }
+    public ArrayList<Integer> getTokenList() {
+        ArrayList<Integer> arr = new ArrayList<Integer>();
+        for(ArrayList<Integer> line : tokenList.values()) {
+            arr.addAll(line);
         }
-        return "{-\n" + whiteSpace.toString()
-                + "\tMultiline comment here\n"
-                + whiteSpace.toString() + "-}";
+        System.out.println(arr);
+        return arr;
     }
-
+    
     /**
      * gets the current font size
      */

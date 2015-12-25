@@ -60,6 +60,15 @@ public class Utils {
             return false;
         }
     }
+    
+    public static boolean isRegister(String str) {
+        try {
+            Register.valueOf(str);
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
 
     public static int getNumericValue(String str) {
         return isHex(str) ? Integer.decode(str) : Integer.parseInt(str);

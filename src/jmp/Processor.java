@@ -33,7 +33,7 @@ public class Processor {
         return mem;
     }
     
-    public void load(Program prog) {
+    public void load(BinaryProgram prog) {
         parent.setTitle(VMConstants.DEFAULT_WINDOW_TITLE + " - " + prog.name);
         mem.resetRam();
         mem.load(prog.code);

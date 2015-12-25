@@ -43,6 +43,12 @@ public class ExecControls extends JPanel {
         assembleBtn.setToolTipText("Assemble code");
         assembleBtn.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
         assembleBtn.setPreferredSize(new java.awt.Dimension(30, 25));
+        assembleBtn.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                proc.load(new BinaryProgram("Untitled program", parent.getAssembledCode()));
+            }
+        });
         add(assembleBtn);
 
         runBtn.setIcon(new ImageIcon(getClass().getResource("/jmp/img/playback_play_icon&16.png")));
